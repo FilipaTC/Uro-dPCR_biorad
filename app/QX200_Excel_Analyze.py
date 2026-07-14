@@ -250,13 +250,3 @@ class ExcelAnalyzer:
         df2.insert(0, 'Source_File', source_file)
         df2.to_excel(filename, index=False)
         return df2
-
-
-df = ExcelAnalyzer().open_excel("dados/QX200/FGFR3 248-249 UTUC GERMANY_25-02-26_PLATE 1_20260225_142841_098.xlsx")
-df = ExcelAnalyzer().analyze_data(df)
-df = ExcelAnalyzer().duplicate_internal_controls(df)
-data_dict, df = ExcelAnalyzer().accepted_droplets(df)
-data_dict, df = ExcelAnalyzer().positive_droplets(df)
-data_dict, df = ExcelAnalyzer().fractional_abundance(df)
-#updated_dict = ExcelAnalyzer().final_result_from_tuple_dict(data_dict)
-#df2 = ExcelAnalyzer().save_dictionary_in_excel(updated_dict, "output/UTUC_GERMANY2_results.xlsx", "/dados/QX200/FGFR3 248-249 UTUC GERMANY_25-02-26_PLATE 1_20260225_142841_098.xlsx")
