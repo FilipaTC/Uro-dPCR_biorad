@@ -257,8 +257,3 @@ class Resultados:
 
         print(f"✅ Ficheiro completo exportado para: {filename}")
         return filename
-    
-#df_final = Resultados().results_together("Final_Results/Results_*.xlsx")
-#df_selected = Resultados().select_information(df_final)
-#Resultados().save_selected_information(df_selected)
-#Resultados().save_full_information(df_final)
