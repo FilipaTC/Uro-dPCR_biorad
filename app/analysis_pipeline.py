@@ -2,7 +2,7 @@ from QX200_Excel_Analyze import ExcelAnalyzer
 import os
 import datetime
 
-def run_analysis(input_excel_path, output_dir):
+def run_analysis(input_excel_path, output_dir, normalize=True):
     os.makedirs(output_dir, exist_ok=True)
 
     analyzer = ExcelAnalyzer()
@@ -13,7 +13,7 @@ def run_analysis(input_excel_path, output_dir):
     
     df = analyzer.duplicate_internal_controls(df)
     data_dict, df = analyzer.accepted_droplets(df)
-    data_dict, df = analyzer.positive_droplets(df)
+    data_dict, df = analyzer.positive_droplets(df, normalize=normalize)
     data_dict, df = analyzer.fractional_abundance(df)
     data_dict = analyzer.final_result_from_tuple_dict(data_dict)
 
