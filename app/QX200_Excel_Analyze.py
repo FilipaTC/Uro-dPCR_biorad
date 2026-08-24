@@ -74,17 +74,36 @@ class ExcelAnalyzer:
         return data_dict, df
 
 
-    def positive_droplets(self, df):
-        """Classify positive droplets based on Target type."""
+    def positive_droplets(self, df, normalize=True):
+        """Classify positive droplets based on Target type.
+
+        Parameters
+        ----------
+        df : DataFrame
+        normalize : bool, default True
+            Se True, subtrai a média de 'Positives' dos controlos NTC/NC (por Target)
+            a todas as amostras (background subtraction). Se False, mantém os
+            valores de 'Positives' tal como estão, sem qualquer normalização.
+        """
         # Definição da condição para controlos internos (targets que terminam em '-IC')
         #print(df.columns)
         print("Original Positives:", df['Positives'])
-        ntc = (df[df['Sample description 1'].str.upper() == 'NTC']
-                         .groupby('Target')['Positives'].mean())
-        positives = (df['Positives'] - df['Target'].map(ntc).fillna(0))
         df = df.copy()
-        df['Positives'] = positives.clip(lower=0)
-        print("Adjusted Positives (NTC subtracted):", df['Positives'])
+        if normalize:
+            # Considera como background as amostras identificadas como NTC ou NC
+            # (palavra inteira, case-insensitive)
+            background_pattern = r'\b(NTC|NC)\b'
+            background = df[
+                df['Sample description 1'].astype(str).str.contains(
+                    background_pattern, case=False, na=False, regex=True
+                )
+            ]
+            background_mean = background.groupby('Target')['Positives'].mean()
+            positives = (df['Positives'] - df['Target'].map(background_mean).fillna(0))
+            df['Positives'] = positives.clip(lower=0)
+            print("Adjusted Positives (NTC/NC subtracted):", df['Positives'])
+        else:
+            print("Normalização pelo NTC/NC desativada — a usar valores de Positives originais.")
         is_ic = df['Target'].str.endswith('-IC')
         # Cria uma nova coluna booleana
         df['Positive_Droplets_OK'] = (
@@ -250,3 +269,4 @@ class ExcelAnalyzer:
         df2.insert(0, 'Source_File', source_file)
         df2.to_excel(filename, index=False)
         return df2
+ 
