@@ -21,7 +21,7 @@ app_ui = ui.page_fluid(
     ),
     ui.input_checkbox(
         "normalize_ntc",
-        "Normalizar pelo NTC/NC (subtrair background dos controlos)",
+        "Normalize by NTC/NC (subtract NTC or NC positives from each sample per target)",
         value=True
     ),
     ui.input_action_button("run_analysis", "Run individual analysis"),
