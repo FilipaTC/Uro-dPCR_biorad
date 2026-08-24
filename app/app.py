@@ -19,6 +19,11 @@ app_ui = ui.page_fluid(
         accept=[".xlsx"],
         multiple=False
     ),
+    ui.input_checkbox(
+        "normalize_ntc",
+        "Normalizar pelo NTC/NC (subtrair background dos controlos)",
+        value=True
+    ),
     ui.input_action_button("run_analysis", "Run individual analysis"),
     ui.download_button("download_analysis", "Download individual result"),
 
@@ -90,7 +95,8 @@ def server(input, output, session):
 
                 output_path = run_analysis(
                     input_excel_path=input_path,
-                    output_dir=tmpdir
+                    output_dir=tmpdir,
+                    normalize=input.normalize_ntc()
                 )
 
                 analysis_file.set(output_path)
@@ -206,6 +212,9 @@ def server(input, output, session):
         path = full_summary_file()
         return path if path and os.path.exists(path) else None
 
+
+# ---------------- APP ----------------
+app = App(app_ui, server)
 
 # ---------------- APP ----------------
 app = App(app_ui, server)
