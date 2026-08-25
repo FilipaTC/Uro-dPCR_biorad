@@ -21,7 +21,7 @@ app_ui = ui.page_fluid(
     ),
     ui.input_checkbox(
         "normalize_ntc",
-        "Normalize by NTC/NC (subtract NTC or NC positives from each sample per target)",
+        "Normalizar pelo NTC (subtrair background do controlo NTC)",
         value=True
     ),
     ui.input_action_button("run_analysis", "Run individual analysis"),
@@ -215,6 +215,7 @@ def server(input, output, session):
 
 # ---------------- APP ----------------
 app = App(app_ui, server)
+ 
 
 # ---------------- APP ----------------
 app = App(app_ui, server)
