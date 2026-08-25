@@ -99,9 +99,19 @@ class ExcelAnalyzer:
                 )
             ]
             background_mean = background.groupby('Target')['Positives'].mean()
-            positives = (df['Positives'] - df['Target'].map(background_mean).fillna(0))
+
+            # IMPORTANTE: o controlo interno (IC) é um "spike-in" adicionado a TODOS
+            # os poços, incluindo o NTC — por isso o NTC normalmente já mostra sinal
+            # de IC. Subtrair esse background ao próprio IC zera (ou quase) o sinal
+            # de IC em todas as amostras, levando a resultados "Inconclusive" em
+            # massa. A normalização deve aplicar-se apenas aos targets MUT.
+            is_ic_target = df['Target'].str.upper().str.endswith('-IC')
+            background_to_subtract = df['Target'].map(background_mean).fillna(0)
+            background_to_subtract = background_to_subtract.where(~is_ic_target, 0)
+
+            positives = df['Positives'] - background_to_subtract
             df['Positives'] = positives.clip(lower=0)
-            print("Adjusted Positives (NTC/NC subtracted):", df['Positives'])
+            print("Adjusted Positives (NTC/NC subtracted apenas dos targets MUT):", df['Positives'])
         else:
             print("Normalização pelo NTC/NC desativada — a usar valores de Positives originais.")
         is_ic = df['Target'].str.endswith('-IC')
@@ -267,6 +277,8 @@ class ExcelAnalyzer:
             ]
         )
         df2.insert(0, 'Source_File', source_file)
+        df2.to_excel(filename, index=False)
+        return df2
         df2.to_excel(filename, index=False)
         return df2
  
