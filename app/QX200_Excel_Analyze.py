@@ -90,14 +90,11 @@ class ExcelAnalyzer:
         print("Original Positives:", df['Positives'])
         df = df.copy()
         if normalize:
-            # Considera como background as amostras identificadas como NTC ou NC
-            # (palavra inteira, case-insensitive)
-            background_pattern = r'\b(NTC|NC)\b'
-            background = df[
-                df['Sample description 1'].astype(str).str.contains(
-                    background_pattern, case=False, na=False, regex=True
-                )
-            ]
+            # Background de referência: apenas o NTC (No Template Control),
+            # tal como no código original — o NC é uma amostra biológica real
+            # e pode ter ruído de fundo mais elevado, distorcendo a subtração
+            # se for incluído na média.
+            background = df[df['Sample description 1'].astype(str).str.upper() == 'NTC']
             background_mean = background.groupby('Target')['Positives'].mean()
 
             # IMPORTANTE: o controlo interno (IC) é um "spike-in" adicionado a TODOS
@@ -111,9 +108,9 @@ class ExcelAnalyzer:
 
             positives = df['Positives'] - background_to_subtract
             df['Positives'] = positives.clip(lower=0)
-            print("Adjusted Positives (NTC/NC subtracted apenas dos targets MUT):", df['Positives'])
+            print("Adjusted Positives (NTC subtracted apenas dos targets MUT):", df['Positives'])
         else:
-            print("Normalização pelo NTC/NC desativada — a usar valores de Positives originais.")
+            print("Normalização pelo NTC desativada — a usar valores de Positives originais.")
         is_ic = df['Target'].str.endswith('-IC')
         # Cria uma nova coluna booleana
         df['Positive_Droplets_OK'] = (
@@ -277,8 +274,6 @@ class ExcelAnalyzer:
             ]
         )
         df2.insert(0, 'Source_File', source_file)
-        df2.to_excel(filename, index=False)
-        return df2
         df2.to_excel(filename, index=False)
         return df2
  
